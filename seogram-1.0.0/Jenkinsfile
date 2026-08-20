@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage("Clone") {
+            steps {
+                git url: "https://github.com/devashish-pandey/test-project.git", branch: "main"
+            }
+        }
+
+        stage("Image") {
+            steps {
+                sh 'docker build -t seogram:latest ./seogram-1.0.0'
+            }
+        }
+
+        stage("Push Image") {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'hubCred',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+
+                    sh 'docker tag seogram:latest dextern001/seogram:latest'
+
+                    sh 'docker push dextern001/seogram:latest'
+                }
+            }
+        }
+    }
+}
