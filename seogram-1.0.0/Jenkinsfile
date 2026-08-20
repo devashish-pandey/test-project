@@ -5,8 +5,10 @@ pipeline {
 
         stage("Clone") {
             steps {
-                git url: "https://github.com/devashish-pandey/test-project.git",
+                git(
+                    url: "https://github.com/devashish-pandey/test-project.git",
                     branch: "main"
+                )
             }
         }
 
@@ -18,12 +20,13 @@ pipeline {
 
         stage("Push") {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'hubCred',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'hubCred',
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                    )
+                ]) {
                     sh 'echo $PASS | docker login -u $USER --password-stdin'
                     sh 'docker tag seogram:latest dextern001/seogram:latest'
                     sh 'docker push dextern001/seogram:latest'
@@ -40,19 +43,24 @@ pipeline {
                     '''
                 }
             }
-        }}}
-        post {
+        }
+    }
+
+    post {
         success {
             emailext(
-                subject:"Succesful build",
-                body:"Good , succsess in build",
-                to: 'pdevashish587@gmail.com'
-                )
+                subject: "Successful build",
+                body: "Good, success in build",
+                to: "pdevashish587@gmail.com"
+            )
         }
-        failure{
+
+        failure {
             emailext(
-                subject:"failed build",
-                body:"Bad , failure in build",
-                to: 'pdevashish587@gmail.com'
-                )
+                subject: "Failed build",
+                body: "Bad, failure in build",
+                to: "pdevashish587@gmail.com"
+            )
         }
+    }
+}
