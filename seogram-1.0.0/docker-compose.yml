@@ -1,0 +1,7 @@
+services:
+  seogram:
+    image: dextern001/seogram:latest
+    container_name: seogram
+    ports:
+      - "8000:80"
+    restart: unless-stopped
