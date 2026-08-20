@@ -40,7 +40,7 @@ pipeline {
                     '''
                 }
             }
-        }
+        }}}
         post {
         success {
             emailext(
@@ -56,5 +56,3 @@ pipeline {
                 to: 'pdevashish587@gmail.com'
                 )
         }
-    }
-}
