@@ -1,21 +1,22 @@
 pipeline {
-    agent any
+    agent { label "dev" }
 
     stages {
 
         stage("Clone") {
             steps {
-                git url: "https://github.com/devashish-pandey/test-project.git", branch: "main"
+                git url: "https://github.com/devashish-pandey/test-project.git",
+                    branch: "main"
             }
         }
 
-        stage("Image") {
+        stage("Build") {
             steps {
                 sh 'docker build -t seogram:latest ./seogram-1.0.0'
             }
         }
 
-        stage("Push Image") {
+        stage("Push") {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'hubCred',
@@ -24,16 +25,20 @@ pipeline {
                 )]) {
 
                     sh 'echo $PASS | docker login -u $USER --password-stdin'
-
                     sh 'docker tag seogram:latest dextern001/seogram:latest'
-
                     sh 'docker push dextern001/seogram:latest'
                 }
             }
         }
-        stage("Deploy"){
-            steps{
-                sh "docker run -d -p 8000:80 seogram:latest"
+
+        stage("Deploy") {
+            steps {
+                dir("seogram-1.0.0") {
+                    sh '''
+                        docker compose pull
+                        docker compose up -d
+                    '''
+                }
             }
         }
     }
